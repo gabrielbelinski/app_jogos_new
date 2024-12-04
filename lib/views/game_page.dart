@@ -67,7 +67,7 @@ class _GamePageState extends State<GamePage> {
     }
 
     // Volta para a tela anterior após salvar
-    Navigator.pop(context);
+    Navigator.pop(context); // Fecha a tela atual
   }
 
   // Função para mostrar o alerta
@@ -104,15 +104,16 @@ class _GamePageState extends State<GamePage> {
             content: Text("Se sair, as alterações serão descartadas."),
             actions: <Widget>[
               TextButton(
-                child: Text("Cancelar"),
+                child: Text("Manter na tela"),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Fecha apenas o diálogo
                 },
               ),
               TextButton(
                 child: Text("Sair"),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                  Navigator.of(this.context).pop(); // Sai da tela atual
                 },
               ),
             ],
@@ -120,7 +121,7 @@ class _GamePageState extends State<GamePage> {
         },
       );
     } else {
-      Navigator.pop(context); // Volta sem mostrar o alerta
+      Navigator.of(context).pop(); // Sai da tela atual diretamente
     }
   }
 
@@ -170,13 +171,7 @@ class _GamePageState extends State<GamePage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _saveGame();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ),
-                );
+                _saveGame(); // Salva o jogo
               },
               child: Text(widget.game == null ? 'Salvar' : 'Atualizar'),
             ),

@@ -59,14 +59,31 @@ class GameHelper {
   }
 
   // Função para recuperar todos os jogos
-  Future<List> getAllGames() async {
+  Future<List<Game>> getAllGames() async {
     Database dbGame = await this.db;
-    List map = await dbGame.query(gameTable);
+    List<Map> map = await dbGame.query(gameTable);
     List<Game> listGames = [];
     for (Map m in map) {
       listGames.add(Game.fromMap(m));
     }
     return listGames;
+  }
+
+  // Função para excluir um jogo
+  Future<void> deleteGame(int id) async {
+    final dbGame = await db; // Acesso correto ao banco de dados
+
+    try {
+      // Deleta o jogo com o ID especificado
+      await dbGame.delete(
+        gameTable,
+        where: '$idColumn = ?', 
+        whereArgs: [id], 
+      );
+    } catch (e) {
+      print("Erro ao excluir o jogo: $e"); 
+      rethrow;
+    }
   }
 }
 
@@ -91,7 +108,7 @@ class Game {
   }
 
   // Método para converter o enum para string e armazenar no banco
-  Map toMap() {
+  Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       nameColumn: name,
       publisherColumn: publisher,

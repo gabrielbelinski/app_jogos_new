@@ -9,7 +9,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   GameHelper helper = GameHelper();
-  List<Game> games = List();
+  List<Game> games = [];
 
   @override
   void initState() {
@@ -24,6 +24,15 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _deleteGame(int id) async {
+    try {
+      await helper.deleteGame(id);
+      _loadGames(); // Atualiza a lista após excluir
+    } catch (e) {
+      _showErrorDialog("Erro", "Não foi possível excluir o jogo. Tente novamente.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,18 +44,37 @@ class _HomePageState extends State<HomePage> {
           : ListView.builder(
               itemCount: games.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(games[index].name ?? 'Nome não disponível'),
-                  subtitle: Text(
-                      games[index].publisher ?? 'Publicadora não disponível'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GamePage(game: games[index]),
-                      ),
-                    );
-                  },
+                return Card(
+                  child: ListTile(
+                    title: Text(games[index].name ?? 'Nome não disponível'),
+                    subtitle: Text(
+                        games[index].publisher ?? 'Publicadora não disponível'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GamePage(game: games[index]),
+                              ),
+                            ).then((_) {
+                              _loadGames(); // Atualiza após edição
+                            });
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            _showDeleteConfirmation(context, games[index].id);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
@@ -57,10 +85,59 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => GamePage(),
             ),
-          );
+          ).then((_) {
+            _loadGames(); // Atualiza após adicionar
+          });
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Excluir Jogo"),
+          content: Text("Tem certeza que deseja excluir este jogo?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancelar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Excluir", style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+                _deleteGame(id); // Exclui o jogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
