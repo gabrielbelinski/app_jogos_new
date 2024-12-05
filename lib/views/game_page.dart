@@ -1,3 +1,4 @@
+import 'package:app_jogos_new/Enums/e_difficulty.dart';
 import 'package:app_jogos_new/helpers/game_helper.dart';
 import 'package:app_jogos_new/views/home_page.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class _GamePageState extends State<GamePage> {
   TextEditingController _publisherController;
   TextEditingController _ratingController;
   Genre _selectedGenre = Genre.Terror; // Valor padrão do gênero
+  Difficulty _selectedDifficulty = Difficulty.Facil;
 
   @override
   void initState() {
@@ -28,7 +30,7 @@ class _GamePageState extends State<GamePage> {
       _ratingController = TextEditingController(text: widget.game.rating);
       _selectedGenre =
           widget.game.genre ?? Genre.Terror; // Define o gênero atual
-
+      _selectedDifficulty = widget.game.difficulty ?? Difficulty.Facil;
     } else {
       _nameController = TextEditingController();
       _publisherController = TextEditingController();
@@ -55,7 +57,8 @@ class _GamePageState extends State<GamePage> {
       ..name = _nameController.text
       ..publisher = _publisherController.text
       ..rating = _ratingController.text
-      ..genre = _selectedGenre;
+      ..genre = _selectedGenre
+      ..difficulty = _selectedDifficulty;
 
     if (widget.game != null) {
       // Se for edição, atualiza o jogo
@@ -165,6 +168,20 @@ class _GamePageState extends State<GamePage> {
                 return DropdownMenuItem<Genre>(
                   value: genre,
                   child: Text(genre.name),
+                );
+              }).toList(),
+            ),
+            DropdownButton<Difficulty>(
+              value: _selectedDifficulty,
+              onChanged: (Difficulty newDifficulty) {
+                setState(() {
+                  _selectedDifficulty = newDifficulty;
+                });
+              },
+              items: Difficulty.values.map((Difficulty difficulty) {
+                return DropdownMenuItem<Difficulty>(
+                  value: difficulty,
+                  child: Text(difficulty.name),
                 );
               }).toList(),
             ),

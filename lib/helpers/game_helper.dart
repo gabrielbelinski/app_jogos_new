@@ -1,3 +1,4 @@
+import 'package:app_jogos_new/Enums/e_difficulty.dart';
 import 'package:app_jogos_new/Enums/e_genres.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -8,6 +9,7 @@ String nameColumn = "nameColumn";
 String publisherColumn = "publisherColumn";
 String genreColumn = "genreColumn";
 String ratingColumn = "ratingColumn";
+String difficultyColumn = "difficultyColumn";
 String gameTable = "gameTable";
 
 class GameHelper {
@@ -34,7 +36,7 @@ class GameHelper {
       version: 1,
       onCreate: (Database db, int newVersion) async {
         await db.execute(
-          'CREATE TABLE $gameTable($idColumn INTEGER PRIMARY KEY, $nameColumn TEXT, $publisherColumn TEXT, $genreColumn TEXT, $ratingColumn TEXT)',
+          'CREATE TABLE $gameTable($idColumn INTEGER PRIMARY KEY, $nameColumn TEXT, $publisherColumn TEXT, $genreColumn TEXT, $ratingColumn TEXT, $difficultyColumn TEXT)',
         );
       },
     );
@@ -77,11 +79,11 @@ class GameHelper {
       // Deleta o jogo com o ID especificado
       await dbGame.delete(
         gameTable,
-        where: '$idColumn = ?', 
-        whereArgs: [id], 
+        where: '$idColumn = ?',
+        whereArgs: [id],
       );
     } catch (e) {
-      print("Erro ao excluir o jogo: $e"); 
+      print("Erro ao excluir o jogo: $e");
       rethrow;
     }
   }
@@ -94,6 +96,7 @@ class Game {
   String publisher;
   Genre genre; // Usando o enum Genre
   String rating;
+  Difficulty difficulty;
 
   // Método para converter o banco de dados para um objeto Game
   Game.fromMap(Map map) {
@@ -105,6 +108,10 @@ class Game {
       orElse: () => Genre.Terror, // Valor padrão
     );
     rating = map[ratingColumn];
+    difficulty = Difficulty.values.firstWhere(
+      (e) => e.toString().split('.').last == map[difficultyColumn],
+      orElse: () => Difficulty.Facil,
+    );
   }
 
   // Método para converter o enum para string e armazenar no banco
@@ -115,6 +122,7 @@ class Game {
       genreColumn:
           genre.toString().split('.').last, // Armazenando o nome do enum
       ratingColumn: rating,
+      difficultyColumn: difficulty.toString().split('.').last,
     };
     if (id != null) {
       map[idColumn] = id;
@@ -124,8 +132,4 @@ class Game {
 
   // Função auxiliar para obter o enum de uma string
 
-  @override
-  String toString() {
-    return "Game";
-  }
 }

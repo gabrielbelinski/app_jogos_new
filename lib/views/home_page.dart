@@ -29,7 +29,8 @@ class _HomePageState extends State<HomePage> {
       await helper.deleteGame(id);
       _loadGames(); // Atualiza a lista após excluir
     } catch (e) {
-      _showErrorDialog("Erro", "Não foi possível excluir o jogo. Tente novamente.");
+      _showErrorDialog(
+          "Erro", "Não foi possível excluir o jogo. Tente novamente.");
     }
   }
 
